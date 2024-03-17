@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+}
+
+h1 {
+    color: #4475ab;
+}
+
+.error {
+    color: #FF0000;
+}
+
+form {
+    margin-top: 20px;
+}
+/* Add styles for the text input box */
+#text-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Add styles for the submit button */
+#summarize-button {
+    background-color: #4475ab;
+    color: white;
+    padding: 10px 15px;
+    margin: 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    
+}
+
+#summarize-button:hover {
+    background-color: #6495c9;
+}
