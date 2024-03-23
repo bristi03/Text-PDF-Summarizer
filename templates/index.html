@@ -13,59 +13,73 @@
     {% endif %}
     <form id="upload-form" enctype="multipart/form-data">
         <textarea id="text-input" placeholder="Paste or type your text here..."></textarea>
-        <p>Word Count Before Summarization: <span id="word-count-before">0</span></p>
         <p>OR</p>
         <input type="file" id="file-input" accept=".pdf"><br>
-        <input type="button" value="Summarize" id="summarize-button" onclick="summarize()">
+        <p>Word Count Before Summarization: <span id="word-count-before">0</span></p>
+        <input type="button" value="Summarize" id="summarize-button" onclick="getWordCount()">
     </form>
 
     <!-- Display area for summarization results -->
     <div id="result-container"></div>
-    <p>Word Count After Summarization: <span id="word-count-after">0</span></p>
+    
+    <div id="word-count-after"><span id="word-count-after"></span></div>
 
     <!-- Loading message -->
     <div id="loading-message" style="display: none;">Please wait...</div>
 
     <script>
-        function summarize() {
-            // Get the input text
+        function getWordCount() {
             var inputText = document.getElementById('text-input').value;
-
-            // Update the word count before summarization
-            var wordCountBefore = inputText.split(/\s+/).length;
-            document.getElementById('word-count-before').textContent = wordCountBefore;
+            var fileInput = document.getElementById('file-input').files[0];
 
             var formData = new FormData();
             formData.append('text', inputText);
-            formData.append('file', document.getElementById('file-input').files[0]);
+            formData.append('file', fileInput);
 
-            // Show loading message
             document.getElementById('loading-message').style.display = 'block';
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload', true);
+            xhr.open('POST', '/get_word_count', true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
-                    // Hide loading message
                     document.getElementById('loading-message').style.display = 'none';
 
                     if (xhr.status === 200) {
-                        // Parse the JSON response
                         var data = JSON.parse(xhr.responseText);
+                        var wordCountBefore = data.word_count_before;
+                        document.getElementById('word-count-before').textContent = wordCountBefore;
 
-                        // Update the word count before summarization
-                        //var wordCountBefore = data.word_count_before;
-                        //document.getElementById('word-count-before').textContent = wordCountBefore;
+                        // Once word count is obtained, now we can proceed to summarize
+                        summarize();
+                    }
+                }
+            };
+            xhr.send(formData);
+        }
 
-                        // Update the result container with the summary
+        function summarize() {
+            var inputText = document.getElementById('text-input').value;
+            var fileInput = document.getElementById('file-input').files[0];
+
+            var formData = new FormData();
+            formData.append('text', inputText);
+            formData.append('file', fileInput);
+
+            document.getElementById('loading-message').style.display = 'block';
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/summarize', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    document.getElementById('loading-message').style.display = 'none';
+
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
                         var summary = data.summary;
-                        document.getElementById('result-container').innerHTML = '<h2>Summary</h2><p>' + summary + '</p>';
-
-                        // Update the word count after summarization
+                        document.getElementById('result-container').innerHTML = '<h2 >Summary</h2><p>' + summary + '</p>';
                         var wordCountAfter = data.word_count_after;
-                        document.getElementById('word-count-after').textContent = wordCountAfter;
+                        document.getElementById('word-count-after').innerHTML='<p>Word Count After Summarization: ' + wordCountAfter + '</p>';
                     } else {
-                        // Handle errors
                         console.error('Error:', xhr.status);
                     }
                 }
